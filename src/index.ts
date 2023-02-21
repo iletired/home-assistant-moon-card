@@ -3,20 +3,20 @@ import { customElement, LitElement, state } from 'lit-element'
 
 import cardStyles from './cardStyles'
 import { Constants } from './constants'
-import { SunCardContent } from './cardContent'
-import { ESunCardErrors, TSunCardConfig, TSunCardData } from './types'
+import { MoonCardContent } from './cardContent'
+import { EMoonCardErrors, TMoonCardConfig, TMoonCardData } from './types'
 
-@customElement('sun-card')
-class SunCard extends LitElement {
-  static readonly cardType = 'sun-card'
-  static readonly cardName = 'Sun Card'
-  static readonly cardDescription = 'Custom card that display a graph to track the sun position and related events'
-
-  @state()
-  private config: TSunCardConfig = {}
+@customElement('moon-card')
+class MoonCard extends LitElement {
+  static readonly cardType = 'moon-card'
+  static readonly cardName = 'Moon Card'
+  static readonly cardDescription = 'Custom card that display a graph to track the moon position and related events'
 
   @state()
-  private data!: TSunCardData
+  private config: TMoonCardConfig = {}
+
+  @state()
+  private data!: TMoonCardData
 
   private hasRendered = false
   private lastHass!: HomeAssistant
@@ -32,13 +32,13 @@ class SunCard extends LitElement {
   }
 
   calculatePositionAndProgressesByTime (hass: HomeAssistant) {
-    const sunLine = this.shadowRoot?.querySelector('path') as SVGPathElement
-    const sunrise = new Date(hass.states['sun.sun'].attributes.next_rising)
-    const sunset = new Date(hass.states['sun.sun'].attributes.next_setting)
+    const moonLine = this.shadowRoot?.querySelector('path') as SVGPathElement
+    const moonrise = new Date(hass.states['moon.moon'].attributes.next_rising)
+    const moonset = new Date(hass.states['moon.moon'].attributes.next_setting)
     const eventsAt = {
       dayStart: 0,
-      sunrise: this.convertDateToMinutesSinceDayStarted(sunrise),
-      sunset: this.convertDateToMinutesSinceDayStarted(sunset),
+      moonrise: this.convertDateToMinutesSinceDayStarted(moonrise),
+      moonset: this.convertDateToMinutesSinceDayStarted(moonset),
       dayEnd: (23 * 60) + 59
     }
 
@@ -46,36 +46,36 @@ class SunCard extends LitElement {
     const minutesSinceTodayStarted = this.convertDateToMinutesSinceDayStarted(now)
     
     // Dawn section position [0 - 105]
-    const dawnSectionPosition = (Math.min(minutesSinceTodayStarted, eventsAt.sunrise) * 105) / eventsAt.sunrise
+    const dawnSectionPosition = (Math.min(minutesSinceTodayStarted, eventsAt.moonrise) * 105) / eventsAt.moonrise
 
     // Day section position [106 - 499]
-    const minutesSinceDayStarted = Math.max(minutesSinceTodayStarted - eventsAt.sunrise, 0)
-    const daySectionPosition = (Math.min(minutesSinceDayStarted, eventsAt.sunset - eventsAt.sunrise) * (499 - 106)) / (eventsAt.sunset - eventsAt.sunrise)
+    const minutesSinceDayStarted = Math.max(minutesSinceTodayStarted - eventsAt.moonrise, 0)
+    const daySectionPosition = (Math.min(minutesSinceDayStarted, eventsAt.moonset - eventsAt.moonrise) * (499 - 106)) / (eventsAt.moonset - eventsAt.moonrise)
 
     // Dusk section position [500 - 605]
-    const minutesSinceDuskStarted = Math.max(minutesSinceTodayStarted - eventsAt.sunset, 0)
-    const duskSectionPosition = (minutesSinceDuskStarted * (605 - 500)) / (eventsAt.dayEnd - eventsAt.sunset)
+    const minutesSinceDuskStarted = Math.max(minutesSinceTodayStarted - eventsAt.moonset, 0)
+    const duskSectionPosition = (minutesSinceDuskStarted * (605 - 500)) / (eventsAt.dayEnd - eventsAt.moonset)
 
     const position = dawnSectionPosition + daySectionPosition + duskSectionPosition
-    const sunPosition = sunLine.getPointAtLength(position)
+    const moonPosition = moonLine.getPointAtLength(position)
 
-    const dawnProgressPercent = (100 * (sunPosition.x - Constants.EVENT_X_POSITIONS.dayStart)) / (Constants.EVENT_X_POSITIONS.sunrise - Constants.EVENT_X_POSITIONS.dayStart)
-    const dayProgressPercent = (100 * (sunPosition.x - Constants.EVENT_X_POSITIONS.sunrise)) / (Constants.EVENT_X_POSITIONS.sunset - Constants.EVENT_X_POSITIONS.sunrise)
-    const duskProgressPercent = (100 * (sunPosition.x - Constants.EVENT_X_POSITIONS.sunset)) / (Constants.EVENT_X_POSITIONS.dayEnd - Constants.EVENT_X_POSITIONS.sunset)
+    const dawnProgressPercent = (100 * (moonPosition.x - Constants.EVENT_X_POSITIONS.dayStart)) / (Constants.EVENT_X_POSITIONS.moonrise - Constants.EVENT_X_POSITIONS.dayStart)
+    const dayProgressPercent = (100 * (moonPosition.x - Constants.EVENT_X_POSITIONS.moonrise)) / (Constants.EVENT_X_POSITIONS.moonset - Constants.EVENT_X_POSITIONS.moonrise)
+    const duskProgressPercent = (100 * (moonPosition.x - Constants.EVENT_X_POSITIONS.moonset)) / (Constants.EVENT_X_POSITIONS.dayEnd - Constants.EVENT_X_POSITIONS.moonset)
 
-    const sunYTop = sunPosition.y - Constants.SUN_RADIUS
-    const yOver = Constants.HORIZON_Y - sunYTop
-    let sunPercentOverHorizon = 0
+    const moonYTop = moonPosition.y - Constants.SUN_RADIUS
+    const yOver = Constants.HORIZON_Y - moonYTop
+    let moonPercentOverHorizon = 0
     if (yOver > 0) {
-      sunPercentOverHorizon = Math.min((100 * yOver) / (2 * Constants.SUN_RADIUS), 100)
+      moonPercentOverHorizon = Math.min((100 * yOver) / (2 * Constants.SUN_RADIUS), 100)
     }
 
     return {
       dawnProgressPercent,
       dayProgressPercent,
       duskProgressPercent,
-      sunPercentOverHorizon,
-      sunPosition: { x: sunPosition.x, y: sunPosition.y }
+      moonPercentOverHorizon,
+      moonPosition: { x: moonPosition.x, y: moonPosition.y }
     }
   }
 
@@ -102,8 +102,8 @@ class SunCard extends LitElement {
       return
     }
 
-    if (!this.lastHass.states['sun.sun']) {
-      return this.showError(ESunCardErrors.SunIntegrationNotFound)
+    if (!this.lastHass.states['moon.moon']) {
+      return this.showError(EMoonCardErrors.MoonIntegrationNotFound)
     }
   
     this.config.darkMode = this.config.darkMode ?? this.lastHass.themes.darkMode
@@ -111,29 +111,29 @@ class SunCard extends LitElement {
     this.config.timeFormat = this.config.timeFormat ?? this.getTimeFormatByLanguage(this.config.language)
 
     const times = {
-      dawn: this.parseTime(this.lastHass.states['sun.sun'].attributes.next_dawn),
-      dusk: this.parseTime(this.lastHass.states['sun.sun'].attributes.next_dusk),
-      noon: this.parseTime(this.lastHass.states['sun.sun'].attributes.next_noon),
-      sunrise: this.parseTime(this.lastHass.states['sun.sun'].attributes.next_rising),
-      sunset: this.parseTime(this.lastHass.states['sun.sun'].attributes.next_setting)
+      dawn: this.parseTime(this.lastHass.states['moon.moon'].attributes.next_dawn),
+      dusk: this.parseTime(this.lastHass.states['moon.moon'].attributes.next_dusk),
+      noon: this.parseTime(this.lastHass.states['moon.moon'].attributes.next_noon),
+      moonrise: this.parseTime(this.lastHass.states['moon.moon'].attributes.next_rising),
+      moonset: this.parseTime(this.lastHass.states['moon.moon'].attributes.next_setting)
     }
 
     const {
       dawnProgressPercent,
       dayProgressPercent,
       duskProgressPercent,
-      sunPercentOverHorizon,
-      sunPosition
+      moonPercentOverHorizon,
+      moonPosition
     } = this.calculatePositionAndProgressesByTime(this.lastHass)
 
-    const data: TSunCardData = {
-      azimuth: this.lastHass.states['sun.sun'].attributes.azimuth,
+    const data: TMoonCardData = {
+      azimuth: this.lastHass.states['moon.moon'].attributes.azimuth,
       dawnProgressPercent,
       dayProgressPercent,
       duskProgressPercent,
-      elevation: this.lastHass.states['sun.sun'].attributes.elevation,
-      sunPercentOverHorizon,
-      sunPosition,
+      elevation: this.lastHass.states['moon.moon'].attributes.elevation,
+      moonPercentOverHorizon,
+      moonPosition,
       times
     }
 
@@ -141,7 +141,7 @@ class SunCard extends LitElement {
   }
 
   getConfig () {
-    const config: TSunCardConfig = {}
+    const config: TMoonCardConfig = {}
     config.darkMode = this.config.darkMode ?? Constants.DEFAULT_CONFIG.darkMode
     config.language = this.config.language ?? Constants.DEFAULT_CONFIG.language
     config.showAzimuth = this.config.showAzimuth ?? Constants.DEFAULT_CONFIG.showAzimuth
@@ -162,19 +162,19 @@ class SunCard extends LitElement {
     return time.includes('pm') || time.includes('am') ? '12h' : '24h'
   }
 
-  setConfig (config: TSunCardConfig) {
+  setConfig (config: TMoonCardConfig) {
     this.config = { ...config }
   }
 
-  showError (error: ESunCardErrors) {
-    this.data = { error } as TSunCardData
+  showError (error: EMoonCardErrors) {
+    this.data = { error } as TMoonCardData
   }
   
   protected render () {
     const config = this.getConfig()
     const language = config.language!
     const localization = Constants.LOCALIZATION_LANGUAGES[language]
-    return SunCardContent.generate(this.data, localization, config)
+    return MoonCardContent.generate(this.data, localization, config)
   }
 
   protected updated (changedProperties) {
@@ -206,7 +206,9 @@ class SunCard extends LitElement {
 
 window.customCards = window.customCards || [] 
 window.customCards.push({
-  type: SunCard.cardType,
-  name: SunCard.cardName,
-  description: SunCard.cardDescription
+  type: MoonCard.cardType,
+  name: MoonCard.cardName,
+  description: MoonCard.cardDescription
 })
+
+
