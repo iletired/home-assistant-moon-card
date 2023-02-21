@@ -2,7 +2,7 @@ import { css } from 'lit-element'
 
 export default css`
   .sun-card {
-    --sun-card-lines: #464646;
+    --moon-card-lines: #464646;
     --sun-card-text-color: #fff;
     --sun-card-subtitle-color: #fff;
 
