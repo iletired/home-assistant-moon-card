@@ -1,4 +1,4 @@
-export type TSunCardConfig = {
+export type TMoonCardConfig = {
   darkMode?: boolean
   language?: string
   showAzimuth?: boolean
@@ -7,46 +7,48 @@ export type TSunCardConfig = {
   title?: string
 }
 
-export type TSunCardTime = {
+export type TMoonCardTime = {
   time: string,
   period?: 'AM' | 'PM'
 }
 
-export type TSunCardData = {
+export type TMoonCardData = {
   azimuth: number
   dawnProgressPercent: number
   dayProgressPercent: number
   duskProgressPercent: number
   elevation: number
   error?: string
-  sunPercentOverHorizon: number
-  sunPosition: {
+  moonPercentOverHorizon: number
+  moonPosition: {
     x: number
     y: number
   }
   times: {
-    dawn: TSunCardTime
-    dusk: TSunCardTime
-    noon: TSunCardTime
-    sunrise: TSunCardTime
-    sunset: TSunCardTime
+    dawn: TMoonCardTime
+    dusk: TMoonCardTime
+    noon: TMoonCardTime
+    moonrise: TMoonCardTime
+    moonset: TMoonCardTime
   }
 }
 
-export type TSunCardTexts = {
+export type TMoonCardTexts = {
   Azimuth: string
   Dawn: string
   Dusk: string
   Elevation: string
   Noon: string
-  Sunrise: string
-  Sunset: string
+  Moonrise: string
+  Moonset: string
 
   errors: {
-    [key in ESunCardErrors]: string
+    [key in EMoonCardErrors]: string
   }
 }
 
-export enum ESunCardErrors {
-  'SunIntegrationNotFound' = 'SunIntegrationNotFound'
+export enum EMoonCardErrors {
+  'MoonIntegrationNotFound' = 'MoonIntegrationNotFound'
 }
+
+
