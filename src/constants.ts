@@ -26,8 +26,8 @@ export class Constants {
 
   static readonly EVENT_X_POSITIONS = {
     dayStart: 5,
-    sunrise: 101,
-    sunset: 449,
+    moonrise: 101,
+    moonset: 449,
     dayEnd: 545
   }
 
@@ -35,5 +35,5 @@ export class Constants {
   static readonly LOCALIZATION_LANGUAGES: Record<string, TSunCardTexts> = {
     da, de, en, es, et, fi, fr, hu, it, nl, pl, 'pt-BR': ptBR, ru, sl, sv
   }
-  static readonly SUN_RADIUS = 17
+  static readonly MOON_RADIUS = 17
 }
