@@ -4,7 +4,7 @@ declare module 'custom-card-helpers' {
     language: string,
     locale: { language: string }
     states: {
-      'sun.sun': {
+      'moon.moonn': {
         state: string
         attributes: {
           azimuth: number
