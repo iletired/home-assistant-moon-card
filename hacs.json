@@ -1,5 +1,5 @@
 {
-  "name": "Sun Card",
+  "name": "Moon Card",
   "render_readme": true,
-  "filename": "home-assistant-sun-card.js"
+  "filename": "home-assistant-moon-card.js"
 }
